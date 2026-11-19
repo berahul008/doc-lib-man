@@ -3,7 +3,7 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const BACKEND_URL = process.env.BACKEND_URL || 'http://library-backend:8080/library-backend';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://lib-net:8080/library-backend';
 
 // Serve static files (HTML, CSS) from the 'public' folder
 app.use(express.static(path.join(__dirname, 'public')));
