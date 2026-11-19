@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Catalog</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 40px; margin: 0; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        h2 { color: #333; text-align: center; }
+        ul { list-style-type: none; padding: 0; }
+        li { background: #f9f9f9; margin: 10px 0; padding: 15px; border-radius: 4px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+        .nav-links { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; font-weight: bold; }
+        .nav-links a { text-decoration: none; color: #007bff; }
+        .nav-links a:hover { text-decoration: underline; }
+        #add-book-nav { display: none; color: #28a745; }
+        #message { text-align: center; margin-bottom: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-links">
+            <a href="/dashboard">⬅ Back to Dashboard</a>
+            <div>
+                <a href="/add-book" id="add-book-nav">➕ Add Book (Admin)</a> | 
+                <a href="/login" onclick="localStorage.clear()" style="color: #dc3545;">Logout</a>
+            </div>
+        </div>
+
+        <h2>Library Book Catalog</h2>
+        <div id="message"></div>
+        <div id="catalog-content">Loading books from backend...</div>
+    </div>
+
+    <script>
+        // Check user role from localStorage and show admin options if authorized
+        const userRole = localStorage.getItem('userRole');
+        if (userRole === 'ADMIN') {
+            document.getElementById('add-book-nav').style.display = 'inline';
+        }
+
+        // Function to load the catalog
+	    function loadCatalog() {
+            const userRole = localStorage.getItem('userRole') || 'CUSTOMER';
+            
+            fetch(`http://192.168.31.179:8080/library-backend/books?role=${userRole}`)
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('catalog-content').innerHTML = html;
+                })
+                .catch(err => {
+                    document.getElementById('catalog-content').innerHTML = '<p style="color:red;">Failed to load catalog from backend.</p>';
+                });
+        }
+        // Function to borrow a book
+        async function borrowBook(bookId) {
+            const userId = localStorage.getItem('userId') || 1; // Default fallback user ID
+            
+            const formData = new URLSearchParams();
+            formData.append('bookId', bookId);
+            formData.append('userId', userId);
+
+            try {
+                const response = await fetch('http://192.168.31.179:8080/library-backend/borrow', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.text();
+                
+                document.getElementById('message').innerText = result;
+                document.getElementById('message').style.color = result.includes("successfully") ? "green" : "red";
+                
+                // Reload catalog to update available copies count
+                loadCatalog();
+            } catch (err) {
+                document.getElementById('message').innerText = 'Failed to connect to server for borrowing.';
+                document.getElementById('message').style.color = 'red';
+            }
+        }
+
+        // Load catalog on page load
+        loadCatalog();
+    </script>
+</body>
+</html>

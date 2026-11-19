@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Registration</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 320px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:hover { background-color: #218838; }
+        p { font-size: 14px; color: #555; }
+        #message-container { display: none; }
+        #error-msg { color: red; font-size: 13px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <!-- Registration Form View -->
+        <div id="form-container">
+            <h2>Library Registration</h2>
+            <form id="register-form">
+                <input type="hidden" name="action" value="register">
+                <label for="username" style="display:none;">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Username" required>
+                
+                <label for="email" style="display:none;">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Email Address" required>
+                
+                <label for="password" style="display:none;">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Password" required>
+                
+                <button type="submit">Register</button>
+            </form>
+            <div id="error-msg"></div>
+            <p style="margin-top: 15px;">Already have an account? <a href="/login">Login here</a></p>
+        </div>
+
+        <!-- Success Countdown View -->
+        <div id="message-container">
+            <h2 style="color: #28a745;">Success! 🎉</h2>
+            <p id="success-text" style="font-size: 16px; line-height: 1.5; color: #333;"></p>
+            <p style="margin-top: 20px; font-weight: bold; color: #007bff;">Redirecting to login in <span id="countdown">5</span>s...</p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const formData = new URLSearchParams(new FormData(this));
+
+            try {
+                const response = await fetch('http://192.168.31.179:8080/library-backend/auth', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.text();
+                
+                if (result.includes("successful")) {
+                    // Hide form and show success countdown card
+                    document.getElementById('form-container').style.display = 'none';
+                    document.getElementById('message-container').style.display = 'block';
+                    
+                    document.getElementById('success-text').innerHTML = `Hello <b>${username}</b>, your registration is completed successfully.`;
+
+                    // Start 5-second countdown timer
+                    let timeLeft = 5;
+                    const countdownEl = document.getElementById('countdown');
+                    
+                    const timer = setInterval(() => {
+                        timeLeft--;
+                        countdownEl.innerText = timeLeft;
+                        
+                        if (timeLeft <= 0) {
+                            clearInterval(timer);
+                            window.location.href = '/login';
+                        }
+                    }, 1000);
+                } else {
+                    document.getElementById('error-msg').innerText = result;
+                }
+            } catch (err) {
+                document.getElementById('error-msg').innerText = 'Server connection failed.';
+            }
+        });
+    </script>
+</body>
+</html>

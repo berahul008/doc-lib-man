@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Library Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 10px; }
+        #welcome-text { color: #666; margin-bottom: 20px; font-size: 14px; }
+        .menu-links { display: flex; flex-direction: column; gap: 15px; margin-top: 20px; }
+        .menu-links a { text-decoration: none; background-color: #007bff; color: white; padding: 12px; border-radius: 4px; font-size: 16px; font-weight: bold; transition: background 0.3s; }
+        .menu-links a:hover { background-color: #0056b3; }
+        .menu-links a.admin-link { background-color: #28a745; display: none; /* Hidden by default */ }
+        .menu-links a.admin-link:hover { background-color: #218838; }
+        .logout { margin-top: 20px; display: inline-block; color: #dc3545; text-decoration: none; font-size: 14px; }
+        .logout:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Library Dashboard</h2>
+        <div id="welcome-text">Welcome back!</div>
+        
+        <div class="menu-links">
+            <!-- Available to All Users -->
+            <a href="/catalog">📚 View Book Catalog</a>
+	    <a href="/borrowed-books" style="background-color: #17a2b8;">📖 My Borrowed Books</a>
+            
+            <!-- Admin Only Link -->
+            <a href="/add-book" id="admin-book-link" class="admin-link">➕ Add New Book (Admin)</a>
+        </div>
+
+        <br>
+        <a href="/login" class="logout" onclick="localStorage.clear()">Logout</a>
+    </div>
+
+
+    <script>
+        // Check user role from localStorage
+        const userRole = localStorage.getItem('userRole');
+        const username = localStorage.getItem('username');
+
+        if (username) {
+            document.getElementById('welcome-text').innerText = `Logged in as: ${username} (${userRole || 'CUSTOMER'})`;
+        }
+
+        // If user is ADMIN, display the admin-only link
+        if (userRole === 'ADMIN') {
+            document.getElementById('admin-book-link').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
