@@ -1,0 +1,30 @@
+# Stage 1: Clone repo and install production dependencies
+FROM node:20-alpine AS builder
+
+WORKDIR /build
+
+RUN apk add --no-cache git && \
+    git clone https://github.com/berahul008/doc-lib-man.git .
+
+# Adjust path if your frontend lives in a different folder inside the repo
+WORKDIR /build/library-frontend
+
+RUN npm ci --omit=dev
+
+# Stage 2: Minimal runtime image
+FROM node:20-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV BACKEND_URL=http://library-backend:8080/library-backend
+
+COPY --from=builder /build/library-frontend/package*.json ./
+COPY --from=builder /build/library-frontend/node_modules ./node_modules
+COPY --from=builder /build/library-frontend/server.js ./server.js
+COPY --from=builder /build/library-frontend/public ./public
+
+EXPOSE 3000
+
+CMD ["node", "server.js"]
