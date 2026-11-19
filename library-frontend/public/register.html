@@ -46,6 +46,8 @@
     </div>
 
     <script>
+        const API_BASE = "/api";
+
         document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             
@@ -53,7 +55,7 @@
             const formData = new URLSearchParams(new FormData(this));
 
             try {
-                const response = await fetch('http://192.168.31.179:8080/library-backend/auth', {
+                const response = await fetch(`${API_BASE}/auth`, {
                     method: 'POST',
                     body: formData
                 });

@@ -28,11 +28,12 @@
     </div>
 
     <script>
+        const API_BASE = "/api";
         const userId = localStorage.getItem('userId') || 1;
         const userRole = localStorage.getItem('userRole') || 'CUSTOMER';
 
         function loadBorrowedBooks() {
-            fetch(`http://192.168.31.179:8080/library-backend/borrowed-books?userId=${userId}&role=${userRole}`)
+            fetch(`${API_BASE}/borrowed-books?userId=${userId}&role=${userRole}`)
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById('borrowed-list').innerHTML = "<ul>" + html + "</ul>";
@@ -48,7 +49,7 @@
             formData.append('bookId', bookId);
 
             try {
-                const response = await fetch('http://192.168.31.179:8080/library-backend/return', {
+                const response = await fetch(`${API_BASE}/return`, {
                     method: 'POST',
                     body: formData
                 });

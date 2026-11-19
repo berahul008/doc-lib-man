@@ -32,6 +32,8 @@
     </div>
 
     <script>
+        const API_BASE = "/api";
+
         // Check user role from localStorage and show admin options if authorized
         const userRole = localStorage.getItem('userRole');
         if (userRole === 'ADMIN') {
@@ -39,10 +41,10 @@
         }
 
         // Function to load the catalog
-	    function loadCatalog() {
-            const userRole = localStorage.getItem('userRole') || 'CUSTOMER';
+        function loadCatalog() {
+            const currentRole = localStorage.getItem('userRole') || 'CUSTOMER';
             
-            fetch(`http://192.168.31.179:8080/library-backend/books?role=${userRole}`)
+            fetch(`${API_BASE}/books?role=${currentRole}`)
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById('catalog-content').innerHTML = html;
@@ -51,6 +53,7 @@
                     document.getElementById('catalog-content').innerHTML = '<p style="color:red;">Failed to load catalog from backend.</p>';
                 });
         }
+
         // Function to borrow a book
         async function borrowBook(bookId) {
             const userId = localStorage.getItem('userId') || 1; // Default fallback user ID
@@ -60,7 +63,7 @@
             formData.append('userId', userId);
 
             try {
-                const response = await fetch('http://192.168.31.179:8080/library-backend/borrow', {
+                const response = await fetch(`${API_BASE}/borrow`, {
                     method: 'POST',
                     body: formData
                 });
